@@ -353,3 +353,78 @@ footer a {
   color: green;
   margin-top: 1rem;
 }
+
+/* ==========================
+   Theme Variables
+========================== */
+:root {
+  --bg-color: #f8f5e3;
+  --text-color: #222;
+  --link-color: #000;
+  --link-hover: #0077ff;
+  --card-bg: #f7faff;
+  --card-hover-bg: #eaf2ff;
+  --input-bg: #f9fbfd;
+  --footer-text: #d4c9a8;
+}
+
+.dark-mode {
+  --bg-color: #1e1e1e;
+  --text-color: #f1f1f1;
+  --link-color: #e0e0e0;
+  --link-hover: #64b5f6;
+  --card-bg: #2c2c2c;
+  --card-hover-bg: #3a3a3a;
+  --input-bg: #2b2b2b;
+  --footer-text: #999;
+}
+
+/* Use the variables throughout */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+a {
+  color: var(--link-color);
+}
+a:hover {
+  color: var(--link-hover);
+}
+header {
+  background: var(--bg-color);
+}
+nav a {
+  color: var(--text-color);
+}
+nav a:hover {
+  color: var(--link-hover);
+}
+.product-list li {
+  background: var(--card-bg);
+}
+.product-list li:hover,
+.product-li-link:hover {
+  background: var(--card-hover-bg);
+}
+input[type="text"] {
+  background: var(--input-bg);
+}
+footer,
+footer a {
+  color: var(--footer-text);
+}
+
+#themeToggle {
+  background: none;
+  border: 2px solid #cfd8e3;
+  border-radius: 30px;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  color: var(--text-color);
+}
+#themeToggle:hover {
+  background: var(--card-hover-bg);
+  border-color: #0077ff;
+}
