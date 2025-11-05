@@ -86,54 +86,73 @@ window.clearBasket = function () {
 };
 
 // ==========================
-// Dark Mode Toggle
+// Dark Mode Toggle (fixed)
 // ==========================
 
 const themeToggleBtn = document.getElementById("themeToggle");
 
-function applyTheme(theme) {
+// Apply the theme based on a preference value: "light" | "dark" | "auto"
+function applyTheme(pref) {
   const body = document.body;
-  if (theme === "dark") {
-    body.classList.add("dark-mode");
+  if (pref === "auto") {
+    // Resolve to system preference
+    const sys = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    body.classList.toggle("dark-mode", sys === "dark");
   } else {
-    body.classList.remove("dark-mode");
+    body.classList.toggle("dark-mode", pref === "dark");
   }
 }
 
-function getSystemPreference() {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
-function loadTheme() {
+// Read stored preference (literal preference, not resolved)
+function readStoredPref() {
   const saved = localStorage.getItem("theme");
-  const theme = saved === "auto" ? getSystemPreference() : saved || "auto";
-  applyTheme(theme);
-  return theme;
+  return saved === "light" || saved === "dark" || saved === "auto"
+    ? saved
+    : "auto";
 }
 
-let currentTheme = loadTheme();
+// Save preference helper
+function savePref(pref) {
+  localStorage.setItem("theme", pref);
+}
 
-function updateButtonLabel(theme) {
+// Keep `currentPref` as the literal preference (light|dark|auto)
+let currentPref = readStoredPref();
+applyTheme(currentPref);
+
+// Keep button label reflecting the preference
+function updateButtonLabel(pref) {
+  if (!themeToggleBtn) return;
   themeToggleBtn.textContent =
-    theme === "light"
-      ? "☀️ Light"
-      : theme === "dark"
-      ? "🌙 Dark"
-      : "🌓 Auto";
+    pref === "light" ? "☀️ Light" : pref === "dark" ? "🌙 Dark" : "🌓 Auto";
+}
+updateButtonLabel(currentPref);
+
+// Cycle preference: light -> dark -> auto -> light ...
+function nextPreference(pref) {
+  return pref === "light" ? "dark" : pref === "dark" ? "auto" : "light";
 }
 
-updateButtonLabel(currentTheme);
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", () => {
+    const nextPref = nextPreference(currentPref);
+    savePref(nextPref);
+    currentPref = nextPref;
+    applyTheme(currentPref);
+    updateButtonLabel(currentPref);
+  });
+}
 
-themeToggleBtn.addEventListener("click", () => {
-  const nextTheme =
-    currentTheme === "light"
-      ? "dark"
-      : currentTheme === "dark"
-      ? "auto"
-      : "light";
-  localStorage.setItem("theme", nextTheme);
-  currentTheme = loadTheme();
-  updateButtonLabel(nextTheme);
-});
+// When in "auto", listen for OS theme changes and re-apply dynamically
+const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+function handleSystemChange() {
+  if (currentPref === "auto") applyTheme("auto");
+}
+if (typeof mediaQuery.addEventListener === "function") {
+  mediaQuery.addEventListener("change", handleSystemChange);
+} else if (typeof mediaQuery.addListener === "function") {
+  // backward-compatible
+  mediaQuery.addListener(handleSystemChange);
+}
